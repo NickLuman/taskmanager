@@ -1,7 +1,7 @@
 from rest_framework import serializers 
 from rest_framework.authtoken.models import Token
 
-from .models import Task
+from .models import Task, TaskChange
 from django.contrib.auth.models import User
 
 
@@ -33,4 +33,18 @@ class TaskSerializer(serializers.ModelSerializer):
             'created',
             'status',
             'completion',
+        )
+
+
+class TaskChangeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TaskChange
+        fields = (
+            'id',
+            'changed_title',
+            'changed_description',
+            'changed_status',
+            'changed_completion',
+            'changed_at',
         )

@@ -13,12 +13,12 @@ class Task(models.Model):
         ('done', 'DONE'),
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    title = models.CharField(max_length=150) # *
-    description = models.TextField() # *
-    created = models.DateField(auto_now_add=True) # *
-    updated = models.DateField(auto_now=True)
+    title = models.CharField(max_length=150)  # *
+    description = models.TextField()  # *
+    created = models.DateTimeField(auto_now_add=True)  # *
+    updated = models.DateTimeField(auto_now=True)
     status = models.CharField(
-        max_length=11, choices=STATUS_CHOICES, default='new') # *
+        max_length=11, choices=STATUS_CHOICES, default='new')  # *
     completion = models.DateTimeField(editable=True)
 
     # def save(self, *args, **kwargs):
@@ -29,3 +29,14 @@ class Task(models.Model):
     def __str__(self):
         return self.title
 
+
+class TaskChange(models.Model):
+    task = models.ForeignKey(Task, on_delete=models.CASCADE)
+    changed_title = models.CharField(max_length=305, default="No changes.")
+    changed_description = models.TextField(default="No changes.")
+    changed_status = models.CharField(max_length=35, default="No changes.")
+    changed_completion = models.CharField(max_length=55, default="No changes.")
+    changed_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return '{0} changed at {1}'.format(task.id, self.changed_at)
