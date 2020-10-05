@@ -21,11 +21,6 @@ class Task(models.Model):
         max_length=11, choices=STATUS_CHOICES, default='new')  # *
     completion = models.DateTimeField(editable=True)
 
-    # def save(self, *args, **kwargs):
-    #     if not self.slug:
-    #         self.slug = str(self.id)
-    #     return super().save(*args, **kwargs)
-
     def __str__(self):
         return self.title
 

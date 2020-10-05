@@ -12,6 +12,8 @@ from rest_framework.decorators import api_view, permission_classes, authenticati
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
+from datetime import datetime, timedelta
+
 
 # URL /api/signup/
 class UserCreate(generics.CreateAPIView):
@@ -60,10 +62,22 @@ def all_tasks(request):
 
     if request.data.get('filter_by_status'):
         tasks_set = tasks_set.filter(status=request.data['filter_by_status'])
-    """
-    if parametrs.find('completion'):
-        pass
-    """
+
+    if request.data.get('filter_by_completion'):
+        filter_arg = request.data['filter_by_completion']
+        now = datetime.now()
+        if filter_arg == 'old':
+            tasks_set = tasks_set.filter(completion__lt=now)
+        elif filter_arg == 'today':
+            tasks_set = tasks_set.filter(completion__gt=now,
+                                         completion__lt=datetime.fromordinal((now+timedelta(days=1)).toordinal()))
+        elif filter_arg == 'tomorrow':
+            tasks_set = tasks_set.filter(completion__gt=datetime.fromordinal((now+timedelta(days=1)).toordinal()),
+                                         completion__lt=datetime.fromordinal((now+timedelta(days=2)).toordinal()))
+        elif filter_arg == 'this month':
+            tasks_set = tasks_set.filter(completion__gt=now,
+                                         completion__lt=datetime.fromordinal((now+timedelta(days=30)).toordinal()))
+
     tasks = TaskSerializer(tasks_set, many=True)
     return Response(tasks.data, status=status.HTTP_200_OK)
 
@@ -107,31 +121,24 @@ def api_get_update_delete_task(request, slug):
             'completion': 'empty/invalid format/the same data',
         }
         change = TaskChange(task=task)
-        # -- refactoring --
-        if request.data.get('title') and request.data.get('title') != task.title:
-            response_map['title'] = '{0} -> {1}'.format(
-                task.title, request.data['title'])
-            task.title = request.data['title']
-            change.changed_title = response_map['title']
-        if request.data.get('description') and request.data.get('description') != task.description:
-            response_map['description'] = '{0} -> {1}'.format(
-                task.description, request.data['description'])
-            task.title = request.data['description']
-            change.changed_description = response_map['description']
-        if request.data.get('completion') and request.data.get('completion') != task.completion:
-            response_map['completion'] = '{0} -> {1}'.format(
-                task.completion, request.data['completion'])
-            task.completion = request.data['completion']
-            change.changed_completion = response_map['completion']
-        try:
-            if request.data['status'] in ('new', 'planned', 'in progress', 'done'):
-                response_map['status'] = '{0} -> {1}'.format(
-                    task.status, request.data['status'])
-                task.status = request.data['status']
-                change.changed_status = response_map['status']
-        except:
-            pass
-        # -- --
+
+        def changes_controller(field, task_field, change_field):
+            if request.data.get(field) and (request.data.get(field) != task_field or
+                                            (field == 'status' and request.data[field] in ('new', 'planned', 'in progress', 'done'))):
+                response_map[field] = '{0} -> {1}'.format(
+                    task_field, request.data[field])
+                task_field = request.data[field]
+                change_field = response_map[field]
+            return task_field, change_field
+
+        task.title, change.changed_title = changes_controller(
+            'title', task.title, change.changed_title)
+        task.description, change.changed_description = changes_controller('description', task.description,
+                                                                          change.changed_description)
+        task.completion, change.changed_completion = changes_controller('completion', task.completion,
+                                                                        change.changed_completion)
+        task.status, change.changed_status = changes_controller(
+            'status', task.status, change.changed_status)
         task.save()
         change.save()
         return Response(response_map, status=status.HTTP_200_OK)
