@@ -96,7 +96,8 @@ def api_new_task(request):
                 status=request.data.get('status'),
                 completion=request.data.get('completion'))
     task.save()
-    return Response({'slug': task.id}, status=status.HTTP_201_CREATED)
+    url = '/'.join(request.build_absolute_uri().split('/')[:-2] + ['task', str(task.id)])
+    return Response({'URL': url}, status=status.HTTP_201_CREATED)
 
 
 # URL /api/task/<slug>
