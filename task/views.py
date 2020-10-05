@@ -105,6 +105,9 @@ def api_new_task(request):
 @authentication_classes((SessionAuthentication, BasicAuthentication, TokenAuthentication))
 @permission_classes((IsAuthenticated,))
 def api_get_update_delete_task(request, slug):
+    """
+    View to get, update, delete task.
+    """
     try:
         task = request.user.task_set.get(id=int(slug))
     except ObjectDoesNotExist:
@@ -124,12 +127,12 @@ def api_get_update_delete_task(request, slug):
         change = TaskChange(task=task)
 
         def changes_controller(field, task_field, change_field):
-            if request.data.get(field) and (request.data.get(field) != task_field or
-                                            (field == 'status' and request.data[field] in ('new', 'planned', 'in progress', 'done'))):
-                response_map[field] = '{0} -> {1}'.format(
-                    task_field, request.data[field])
-                task_field = request.data[field]
-                change_field = response_map[field]
+            if request.data.get(field) and request.data.get(field) != task_field:
+                if (field == 'status' and request.data[field] in ('new', 'planned', 'in progress', 'done')) or field != 'status':
+                    response_map[field] = '{0} -> {1}'.format(
+                        task_field, request.data[field])
+                    task_field = request.data[field]
+                    change_field = response_map[field]
             return task_field, change_field
 
         task.title, change.changed_title = changes_controller(
@@ -146,9 +149,6 @@ def api_get_update_delete_task(request, slug):
     elif request.method == 'DELETE':
         task.delete()
         return Response({'done': True}, status=status.HTTP_204_NO_CONTENT)
-    else:
-        return Response({'detail': "Method \{0}\ not allowed.".format(request.method)},
-                        status=status.HTTP_400_BAD_REQUEST)
 
 
 # URL /api/task/<slug>/changes
@@ -156,6 +156,9 @@ def api_get_update_delete_task(request, slug):
 @authentication_classes((SessionAuthentication, BasicAuthentication, TokenAuthentication))
 @permission_classes((IsAuthenticated,))
 def api_get_task_changes(request, slug):
+    """
+    View to get list of task's changes.
+    """
     try:
         task = request.user.task_set.get(id=int(slug))
     except ObjectDoesNotExist:

@@ -179,7 +179,7 @@ localhost:8000/api/login/
 ##### Результат:
 
 1. - {"URL":"http://localhost:8000/api/task/11"}
-2. - {"URL":"http://localhost:8000/api/task/14"}(
+2. - {"URL":"http://localhost:8000/api/task/14"}
 
 #### Получение задачи <a name="getting-task"></a>:
 
@@ -207,7 +207,7 @@ localhost:8000/api/login/
 
 [{"id":11,"title":"test-u-1","description":"test-d-u-1","created":"2020-10-05T13:59:12.505248Z","status":"in progress","completion":"2020-10-08T12:00:00Z"},{"id":14,"title":"test-2","description":"test-d-2","created":"2020-10-05T14:12:41.164439Z","status":"planned","completion":"2021-10-07T18:00:00Z"}]
 
-#### Получение списка с фильтрацией задач <name="getting-task-list-filtration"></a>:
+#### Получение списка с фильтрацией задач <a name="getting-task-list-filtration"></a>:
 
 1. - \$curl -X GET -H "Authorization: Token 3bbe704c5134f42d2a80a60fa158cb43a8434c51" -d "filter_by_status=planned" http://localhost:8000/api/all/
 2. - \$curl -X GET -H "Authorization: Token 3bbe704c5134f42d2a80a60fa158cb43a8434c51" -d "filter_by_completion=this week" http://localhost:8000/api/all/
