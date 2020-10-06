@@ -22,7 +22,7 @@
   + [Удаление задачи](#deletion-task)
 
 ## ТЗ <a name="technical-task"></a>:
-
+---
 * Требуется написать персонализированный сервис task manager, позволяющий пользователю ставить себе задачи, отражать в системе изменение их статуса и просматривать историю задач.
 
 ### Технологические требования <a name="technological-requirements"></a>:
@@ -63,7 +63,7 @@
 * Возможность просмотреть историю изменений задачи (названия, описания, статуса, времени завершения)
 
 ## Описание API <a name="description-api"></a>:
-
+---
 ### Реализация <a name="implementation"></a>:
 
 * Сервис написан на python3 с использованием веб-фреймворка Django. Данные хранятся в postgresql.
@@ -137,98 +137,98 @@ localhost:8000/api/login/
 
   + С помощью View - api_get_task_changes осуществляется формирование списка изменения определенной задачи. Сначала находим задачу по ее id, после находим соответсвующие ей изменения.
 
-### Сборка и запуск <a name="assembling-and-launch"></a>:
-
-#### Сборка:
+## Сборка и запуск <a name="assembling-and-launch"></a>:
+---
+### Сборка:
 
 * \$docker-compose build
 
-#### Делаем миграцию:
+### Делаем миграцию:
 
 * \$docker-compose run web ./manage.py migrate
 
-#### Запуск:
+### Запуск:
 
 * \$docker-compose up
 
-### Определение степени покрытия приложения тестами <a name="test-coverage"></a>:
-
+## Определение степени покрытия приложения тестами <a name="test-coverage"></a>:
+---
 * \$docker-compose run web coverage run --branch --source=task ./manage.py test
 
 * \$docker-compose run web coverage report
 
-### Пример взаимодействия с API с помощью curl <a name="curl-interaction"></a>:
-
-#### Создание пользователя <a name="user-creation"></a>:
+## Пример взаимодействия с API с помощью curl <a name="curl-interaction"></a>:
+---
+### Создание пользователя <a name="user-creation"></a>:
 
 - \$curl -X POST -d "username=qwerty&password=1234test" http://localhost:8000/api/signup/
 
-#### Получение токена (авторизация) <a name="getting-token"></a>:
+### Получение токена (авторизация) <a name="getting-token"></a>:
 
 - \$curl -X POST -d "username=qwerty&password=1234test" http://localhost:8000/api/login/
 
-##### Результат:
+#### Результат:
 
 - {"token":"3bbe704c5134f42d2a80a60fa158cb43a8434c51"}
 
-#### Добавление задачи <a name="adding-task"></a>:
+### Добавление задачи <a name="adding-task"></a>:
 
 1. - \$curl -X POST -H "Authorization: Token 3bbe704c5134f42d2a80a60fa158cb43a8434c51" -d "title=test&description=test-d&status=new&completion=2020-10-07T18:00" http://localhost:8000/api/new/
 
 2. - \$curl -X POST -H "Authorization: Token 3bbe704c5134f42d2a80a60fa158cb43a8434c51" -d "title=test-2&description=test-d-2&status=planned&completion=2021-10-07T18:00" http://localhost:8000/api/new/
 
-##### Результат:
+#### Результат:
 
 1. - {"URL":"http://localhost:8000/api/task/11"}
 2. - {"URL":"http://localhost:8000/api/task/14"}
 
-#### Получение задачи <a name="getting-task"></a>:
+### Получение задачи <a name="getting-task"></a>:
 
 - \$curl -X GET -H "Authorization: Token 3bbe704c5134f42d2a80a60fa158cb43a8434c51" http://localhost:8000/api/task/11
 
-##### Результат:
+#### Результат:
 
 {"id":11,"title":"test","description":"test-d","created":"2020-10-05T13:59:12.505248Z","status":"new","completion":"2020-10-07T18:00:00Z"}
 
-#### Изменение параметров задачи <a name="changing-task"></a>:
+### Изменение параметров задачи <a name="changing-task"></a>:
 
 1. - \$curl -X PUT -H "Authorization: Token 3bbe704c5134f42d2a80a60fa158cb43a8434c51" -d "title=test-u-1&description=test-d-u-1" http://localhost:8000/api/task/11
 2. - \$curl -X PUT -H "Authorization: Token 3bbe704c5134f42d2a80a60fa158cb43a8434c51" -d "status=planned&dcompletion=2020-10-08T12:00" http://localhost:8000/api/task/11
 
-##### Pезультат:
+#### Pезультат:
 
 1. - {"title":"test -> test-u-1","description":"test-d -> test-d-u-1","status":"empty/invalid format/the same data","completion":"empty/invalid format/the same data"}
 2. - {"title":"empty/invalid format/the same data","description":"empty/invalid format/the same data","status":"new -> planned","completion":"2020-10-07 18:00:00+00:00 -> 2020-10-08T12:00"}
 
-#### Получение списка задач <a name="getting-task-list"></a>:
+### Получение списка задач <a name="getting-task-list"></a>:
 
 - \$curl -X GET -H "Authorization: Token 3bbe704c5134f42d2a80a60fa158cb43a8434c51" http://localhost:8000/api/all/
 
-##### Результат:
+#### Результат:
 
 [{"id":11,"title":"test-u-1","description":"test-d-u-1","created":"2020-10-05T13:59:12.505248Z","status":"in progress","completion":"2020-10-08T12:00:00Z"},{"id":14,"title":"test-2","description":"test-d-2","created":"2020-10-05T14:12:41.164439Z","status":"planned","completion":"2021-10-07T18:00:00Z"}]
 
-#### Получение списка с фильтрацией задач <a name="getting-task-list-filtration"></a>:
+### Получение списка с фильтрацией задач <a name="getting-task-list-filtration"></a>:
 
 1. - \$curl -X GET -H "Authorization: Token 3bbe704c5134f42d2a80a60fa158cb43a8434c51" -d "filter_by_status=planned" http://localhost:8000/api/all/
 2. - \$curl -X GET -H "Authorization: Token 3bbe704c5134f42d2a80a60fa158cb43a8434c51" -d "filter_by_completion=this week" http://localhost:8000/api/all/
 
 
-##### Результат:
+#### Результат:
 
 1. - [{"id":14,"title":"test-2","description":"test-d-2","created":"2020-10-05T14:12:41.164439Z","status":"planned","completion":"2021-10-07T18:00:00Z"}]
 2. - [{"id":11,"title":"test-u-1","description":"test-d-u-1","created":"2020-10-05T13:59:12.505248Z","status":"in progress","completion":"2020-10-08T12:00:00Z"},{"id":14,"title":"test-2","description":"test-d-2","created":"2020-10-05T14:12:41.164439Z","status":"planned","completion":"2021-10-07T18:00:00Z"}]
 
-#### Получение списка изменений конкретной задачи <a name="getting-list-task-changing"></a>:
+### Получение списка изменений конкретной задачи <a name="getting-list-task-changing"></a>:
 
 - \$curl -X GET -H "Authorization: Token 3bbe704c5134f42d2a80a60fa158cb43a8434c51" http://localhost:8000/api/task/11/changes
 
-##### Результат:
+#### Результат:
 
 [{"id":13,"changed_title":"No changes.","changed_description":"No changes.","changed_status":"new -> planned","changed_completion":"2020-10-07 18:00:00+00:00 -> 2020-10-08T12:00","changed_at":"2020-10-05T14:06:07.479313Z"},
 {"id":12,"changed_title":"test -> test-u-1","changed_description":"test-d -> test-d-u-1","changed_status":"No changes.","changed_completion":"No changes.","changed_at":"2020-10-05T14:04:31.459897Z"}]
 
-#### Удаление задачи <a name="deletion-task"></a>:
+### Удаление задачи <a name="deletion-task"></a>:
 
 - \$curl -X DELETE -H "Authorization: Token 3bbe704c5134f42d2a80a60fa158cb43a8434c51" http://localhost:8000/api/task/11
 
